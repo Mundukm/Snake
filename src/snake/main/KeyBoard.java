@@ -22,8 +22,6 @@ public class KeyBoard extends KeyAdapter {
         if((e.getKeyCode() == LEFT)&&(SnakeMain.snake.direction!=RIGHT)) SnakeMain.snake.direction = 37;
         if((e.getKeyCode() == RIGHT)&&(SnakeMain.snake.direction!=LEFT)) SnakeMain.snake.direction = 39;
 
-
-
     }
 
 

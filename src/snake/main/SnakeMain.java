@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 import snake.main.objects.*;
 
@@ -19,16 +20,18 @@ public class SnakeMain extends JPanel implements ActionListener {
     public static Color poisonColor = Color.red;
     public static Color appleColor = Color.yellow;
     public static JFrame jFrame;
+    private  static  JPanel jPanel;
     public static final int scale = 32;
     public static final int width = 20;
     public static final int height = 20;
-    public static int speed = 10;
+    public static int speed = 15;
+    public static int poisonCount = 0;
 
     public static KeyListener kl = new KeyBoard();
     public static Snake snake = new Snake(5,6,5);
     public Timer timer = new Timer(1000/speed,this);
     public Apple apple = new Apple(snake);
-    public Poison poison = new Poison(snake);
+    public ArrayList<Poison> poisonList = new ArrayList<>();
 
     //for painting
     public void paint(Graphics g){
@@ -38,7 +41,9 @@ public class SnakeMain extends JPanel implements ActionListener {
         g.fillRect(0,0,scale*width, scale*height);
 
         apple.paint(g);
-        poison.paint(g);
+
+        for(Poison poison : poisonList)poison.paint(g);
+
         snake.paint(g);
     }
 
@@ -64,7 +69,7 @@ public class SnakeMain extends JPanel implements ActionListener {
         jFrame.setLocationRelativeTo(null);
 
         jFrame.add(new SnakeMain());
-
+        
     }
 
 
@@ -72,21 +77,26 @@ public class SnakeMain extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         snake.move();
 
+        if(poisonCount>=3){
+            poisonList.add(new Poison(snake));
+            poisonCount=0;
+        }
+
         if(snake.insideSnake(apple.posX, apple.posY)){
             do {
-
                 apple.setRandomPosition(snake);
             }while(snake.insideSnake(apple.posX, apple.posY));
             snake.isEating=true;
             jFrame.setTitle("SCORE" + " : " + (snake.snakeList.size()+1));
+            poisonCount++;
         }
 
-        if(snake.selfCrashed()||snake.insideSnake(poison.posX,poison.posY)){
+        if(snake.selfCrashed()||snake.insideSnake(poisonList)){
             timer.stop();
             JOptionPane.showMessageDialog(null, "GAME OVER, TRY AGAIN?");
             snake = new Snake(5,6,5);
             apple.setRandomPosition(snake);
-            poison.setRandomPosition(snake);
+            poisonList = new ArrayList<>();
             timer.start();
         }
 
