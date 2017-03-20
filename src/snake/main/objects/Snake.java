@@ -4,61 +4,95 @@ import snake.main.KeyBoard;
 import snake.main.SnakeMain;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Created by Kolja on 13.03.2017.
  */
 public class Snake {
 
-    public int length = 2;
     public int direction = 37;
+    public List<Point> snakeList = new ArrayList<>();
+    public boolean isEating=false;
 
-    public int[] sX = new int[300];
-    public int[] sY = new int[300];
-
-    public Snake(int x1, int y1, int x2, int y2){
-        sX[0] = x1;
-        sX[1] = x2;
-        sY[0] = y1;
-        sY[1] = y2;
+    public Snake(int x, int y, int length){
+        for(int i = 0; i< length; i++){
+            Point point = new Point(x+i,y);
+            snakeList.add(point);
+        }
     }
 
     public void move(){
-
-        for(int i = length; i>0; i--){
-            sX[i]=sX[i-1];
-            sY[i]=sY[i-1];
-        }
-
+       int x = snakeList.get(0).posX;
+       int y = snakeList.get(0).posY;
         //up
-        if(direction==38) sY[0]-- ;
+        if(direction==38) y-- ;
         //down
-        if(direction==40) sY[0]++ ;
+        if(direction==40) y++ ;
         //right
-        if(direction==39) sX[0]++ ;
+        if(direction==39) x++ ;
         //left
-        if(direction==37) sX[0]-- ;
+        if(direction==37) x-- ;
 
         //walls
-        if(sY[0]> SnakeMain.height-1) sY[0] = 0;
-        if(sY[0]< 0) sY[0] = SnakeMain.height-1;
-        if(sX[0]> SnakeMain.width-1) sX[0] = 0;
-        if(sX[0]< 0) sX[0] = SnakeMain.width-1;
+        if(y> SnakeMain.height-1) y = 0;
+        if(y< 0) y = SnakeMain.height-1;
+        if(x> SnakeMain.width-1) x = 0;
+        if(x< 0) x = SnakeMain.width-1;
+
+        snakeList.add(0,new Point(x,y));
+        if(!isEating) {
+            snakeList.remove(snakeList.size() - 1);
+        }else{
+            isEating=false;
+        }
     }
 
-    public boolean insideSnake(int x, int y){
-        for(int i = 0; i<length;i++){
-            if(sX[i]==x&&sY[i]==y) return true;
+
+    public boolean selfCrashed(){
+        for(int i = 1; i<snakeList.size(); i++){
+            int x = snakeList.get(i).posX;
+            int y = snakeList.get(i).posY;
+            if((x==snakeList.get(0).posX)&&(y==snakeList.get(0).posY)){
+                return true;
+            }
         }
         return false;
     }
 
+    public boolean insideSnake(int x, int y){
+        for(Point point : snakeList){
+            if((point.posX==x)&&(point.posY==y)) return true;
+        }
+        return false;
+    }
+
+    public boolean insideSnake(ArrayList<Poison> pointList){
+        for(Point point : snakeList){
+            for(Point other : pointList){
+                if((point.posX==other.posX)&&(point.posY==other.posY))return true;
+            }
+        }
+        return false;
+    }
+
+
     public void paint(Graphics g){
-        for(int i = 1; i<length; i++){
+
+        //head
+        int h1 = snakeList.get(0).posX;
+        int h2 = snakeList.get(0).posY;
+        g.setColor(SnakeMain.snakeHeadColor);
+        g.fillRect(h1*SnakeMain.scale+4, h2*SnakeMain.scale+4, SnakeMain.scale-10, SnakeMain.scale-10);
+
+        //body
+        for(int i = 1; i<snakeList.size();i++){
+            int x = snakeList.get(i).posX;
+            int y = snakeList.get(i).posY;
             g.setColor(SnakeMain.snakeBodyColor);
-            g.fillRect(sX[i]*SnakeMain.scale+3, sY[i]*SnakeMain.scale+3,SnakeMain.scale-6, SnakeMain.scale-6);
-            g.setColor(SnakeMain.snakeHeadColor);
-            g.fillRect(sX[0]*SnakeMain.scale+3, sY[0]*SnakeMain.scale+3, SnakeMain.scale-6, SnakeMain.scale-6);
+            g.fillRect(x*SnakeMain.scale+4, y*SnakeMain.scale+4, SnakeMain.scale-10, SnakeMain.scale-10);
         }
     }
 

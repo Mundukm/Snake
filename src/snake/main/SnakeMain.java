@@ -69,7 +69,7 @@ public class SnakeMain extends JPanel implements ActionListener {
         jFrame.setLocationRelativeTo(null);
 
         jFrame.add(new SnakeMain());
-        
+
     }
 
 
